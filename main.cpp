@@ -26,22 +26,34 @@ class TimeCourse : public Drawable
 {
 public:
     vector<float> data;
-    TimeCourse(vector<float> & data)
-    : data(data) {}
+    TimeCourse(vector<float> & data, Transform& transform)
+    : data(data), transform(transform) {}
 private:
+    Transform& transform;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         VertexArray polyline(sf::LinesStrip, data.size());
         for (int i = 0; i < data.size(); i++)
         {
-            polyline[i] = Vector2f(i, (data.at(i) + 1) * 100);
+            Vector2f p = Vector2f(i, data.at(i));
+            polyline[i] = transform.transformPoint(p);
         }
         target.draw(polyline, states);
     }
 };
 
+Transform getTransform(Vector2f center, Vector2f zoom) {
+    Transform transform = Transform::Identity;
+    transform = transform.translate(center.x, center.y);
+    transform = transform.scale(zoom.x, zoom.y);
+    return transform.translate(-center.x, -center.y);
+}
+
 int main(int argc, char ** argv)
 {
+    Vector2f center = Vector2f(500, -1);
+    Vector2f zoom = Vector2f(1, 100);
+    Transform transform = getTransform(center, zoom);
 
     if (argc < 2)
     {
@@ -53,7 +65,7 @@ int main(int argc, char ** argv)
     string filename(argv[1]);
     vector<float> data;
     load_csv(filename, data);
-    TimeCourse tc(data);
+    TimeCourse tc(data, transform);
 
     RenderWindow window(sf::VideoMode(1000, 200), "Mega Chaos");
     View view;
@@ -69,12 +81,20 @@ int main(int argc, char ** argv)
                 window.close();
             if (event.type == sf::Event::MouseWheelMoved)
             {
-                if (event.mouseWheel.delta == 1)
+                center = Vector2f(event.mouseWheel.x, -1);
+                switch (event.mouseWheel.delta)
                 {
-                    view.zoom(0.9);
+                case 1:
+                    //view.zoom(0.9);
+                    zoom.x = zoom.x * 0.9f;
+                    transform = getTransform(center, zoom);
+                    break;
+                case -1:
+                    //view.zoom(1.1);
+                    zoom.x = zoom.x * 1.1f;
+                    transform = getTransform(center, zoom);
+                    break;
                 }
-                else
-                    view.zoom(1.1);
             }
         }
 
