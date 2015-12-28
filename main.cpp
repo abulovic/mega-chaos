@@ -81,19 +81,10 @@ int main(int argc, char ** argv)
                 window.close();
             if (event.type == sf::Event::MouseWheelMoved)
             {
-                center = Vector2f(event.mouseWheel.x, -1);
-                switch (event.mouseWheel.delta)
-                {
-                case 1:
-                    //view.zoom(0.9);
-                    zoom.x = zoom.x * 0.9f;
+                if (event.mouseWheel.delta != 0) {
+                    center = Vector2f(event.mouseWheel.x, -1);
+                    zoom.x = zoom.x * (1.0f + event.mouseWheel.delta / 10.0f);
                     transform = getTransform(center, zoom);
-                    break;
-                case -1:
-                    //view.zoom(1.1);
-                    zoom.x = zoom.x * 1.1f;
-                    transform = getTransform(center, zoom);
-                    break;
                 }
             }
         }
