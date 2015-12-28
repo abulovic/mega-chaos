@@ -55,7 +55,11 @@ int main(int argc, char ** argv)
     load_csv(filename, data);
     TimeCourse tc(data);
 
-    sf::RenderWindow window(sf::VideoMode(1000, 200), "Flicker Test v1");
+    RenderWindow window(sf::VideoMode(1000, 200), "Mega Chaos");
+    View view;
+    view.reset(sf::FloatRect(0, 0, 1000, 200));
+    view.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -66,9 +70,11 @@ int main(int argc, char ** argv)
             if (event.type == sf::Event::MouseWheelMoved)
             {
                 if (event.mouseWheel.delta == 1)
-                    cout << "forward" << endl;
+                {
+                    view.zoom(0.9);
+                }
                 else
-                    cout << "backward" << endl;
+                    view.zoom(1.1);
             }
         }
 
@@ -79,6 +85,8 @@ int main(int argc, char ** argv)
         };
         window.clear(sf::Color::Black);
         //window.draw(line, 2, sf::Lines);
+
+        window.setView(view);
         window.draw(tc);
         window.display();
     }
