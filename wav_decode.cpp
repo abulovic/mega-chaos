@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
     if (argc != 3) {
-        cout << "usage: " << argv[0] << " file.wav file.dat";
+        cout << "usage: " << argv[0] << " file.wav file.dat" << endl;
         exit(-1);
     }
     SNDFILE *sf;
