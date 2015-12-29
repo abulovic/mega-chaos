@@ -4,7 +4,7 @@
 
 ```
 sudo apt-get install libsfml-dev
-sudo apt-get install libsndfile
+sudo apt-get install libsndfile-dev
 ```
 
 ## OS X
