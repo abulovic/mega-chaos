@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
     if (argc != 3) {
-        cout << "usage: " << argv[0] << " file.wav file.csv";
+        cout << "usage: " << argv[0] << " file.wav file.dat";
         exit(-1);
     }
     SNDFILE *sf;
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     /* Print some of the info, and figure out how much data to read. */
     f = info.frames;
     sr = info.samplerate;
-    c = info.channels;
+    c = 1/*info.channels*/;
     printf("frames=%d\n",f);
     printf("samplerate=%d\n",sr);
     printf("channels=%d\n",c);
@@ -50,11 +50,11 @@ int main(int argc, char **argv)
     {
         for (j = 0; j < c; ++j)
         {
-            fprintf(out, "%d", buf[i+j]);
+            fprintf(out, "%f", (float) buf[i+j] / 4294967296.0f);
             if (j + 1 < c)
                 fprintf(out, ",");
         }
-        fprintf(out,"\n");
+        fprintf(out,",");
     }
     fclose(out);
     return 0;
