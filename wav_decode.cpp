@@ -54,7 +54,8 @@ int main(int argc, char **argv)
             if (j + 1 < c)
                 fprintf(out, ",");
         }
-        fprintf(out,",");
+        if (i + 1 < num)
+            fprintf(out,",");
     }
     fclose(out);
     return 0;
