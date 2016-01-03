@@ -3,11 +3,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <SFML/Graphics.hpp>
 
 using namespace std;
 using namespace sf;
+
 
 void load_csv(string & filename, vector<float> & data)
 {
@@ -28,16 +30,18 @@ class TimeCourse : public Drawable
 public:
     vector<float> data;
     TimeCourse(vector<float> & data)
-    : data(data) {}
-private:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
-    {
-        VertexArray polyline(sf::LinesStrip, data.size());
+    : data(data)  {
+        polyline = VertexArray(sf::LinesStrip, data.size());
         for (int i = 0; i < data.size(); i++)
         {
             Vector2f p = Vector2f((float)i, data.at(i));
             polyline[i] = p;
         }
+    }
+private:
+    VertexArray polyline;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
+    {
         target.draw(polyline, states);
     }
 };
@@ -45,7 +49,6 @@ private:
 Transform getTransform(Vector2f center, Vector2f zoom) {
     Transform transform = Transform::Identity;
     transform = transform.translate(center.x, center.y);
-    cout << center.x << " " << center.y << endl;
     transform = transform.scale(zoom.x, zoom.y);
     return transform.translate(-center.x, -center.y);
 }
@@ -65,26 +68,26 @@ int main(int argc, char ** argv)
     load_csv(filename, data);
     TimeCourse tc(data);
 
+    float data_min = *min_element(data.begin(),data.end());
+    float data_max = *max_element(data.begin(),data.end());
+    float data_size = data.size();
+
     RenderWindow window(sf::VideoMode(1000, 500), "Mega Chaos");
     View upper_view;
-    upper_view.reset(sf::FloatRect(0, -2, 10000, 4));
-
+    upper_view.reset(sf::FloatRect(0, data_min, data_size, data_max - data_min));
     //upper_view.setSize(800, 200);
     upper_view.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
 
 
 
-    int current_view_level = 0;
-    int level_cnt = 3;
-    View current_view = upper_view;
-
     float x0p, x1p, x0p_, x1p_, pxm, pxs, l, l_;
-    x0p = 0.; x1p = 10000.;
+    x0p = 0.; x1p = data_size;
     x0p_ = x0p; x1p_ = x1p;
     l = x1p - x0p; l_ = l;
 
     float y0p, y1p, y0p_, y1p_, pym, pys, h, h_;
-    y0p = -2.; y1p = 2.;
+    y0p = data_min; 
+    y1p = data_max;
     y0p_ = y0p; y1p_ = y1p;
     h = y1p - y0p; h_ = h;
     float z = 0.95f;
@@ -114,17 +117,12 @@ int main(int argc, char ** argv)
                     {
                         continue;
                     }
-                    std::cout << "X0P_, X1P_: " << x0p_ << ", " << x1p_ << std::endl;
-                    std::cout << "Len: " << l_ << "," << l << std::endl;
                     pxm = event.mouseWheel.x;
                     pxs = pxm / window.getSize().x * l + x0p_;
-                    std::cout << "PXM, PXS:  " << pxm << "," << pxs << std::endl;
                     z = 1 - event.mouseWheel.delta * 0.05;
                     x0p = ((pxs) * (1. - z) + z*x0p_);
                     x1p = z*l_ + x0p;
                     l = x1p - x0p;
-                    std::cout << "X0P, X1P: " << x0p << ", " << x1p << std::endl;
-                    std::cout << "Len: " << l_ << std::endl;
                     upper_view.reset(sf::FloatRect(x0p, y0p, l, h));
 
                     x0p_ = x0p;
@@ -156,7 +154,6 @@ int main(int argc, char ** argv)
             {
                 initialPosition = Mouse::getPosition(window);
                 zoomRect.setPosition(initialPosition.x, initialPosition.y);
-                cout << "initial pos: " << initialPosition.x << ", " << initialPosition.y << endl;
             }
             if (Keyboard::isKeyPressed(Keyboard::R) && Mouse::isButtonPressed(Mouse::Left))
             {
@@ -166,9 +163,6 @@ int main(int argc, char ** argv)
                 float len = newPos.x - initialPosition.x;
                 float wid = newPos.y - initialPosition.y;
                 zoomRect.setSize(Vector2f(len, wid));
-                cout << "Drawing..." << endl;
-                cout << "X, Y: " << zoomRect.getPosition().x << ", " << zoomRect.getPosition().y << 
-                ", W, H: " << zoomRect.getSize().x << ", " << zoomRect.getSize().y << endl;
             }
             if (event.type == Event::MouseButtonReleased && zoomRect.getSize().x > 0)
             {
