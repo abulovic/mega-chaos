@@ -6,11 +6,12 @@
 #include <algorithm>
 
 #include <SFML/Graphics.hpp>
+#include "decimator.cpp"
 
 using namespace std;
 using namespace sf;
 
-
+/*
 void load_csv(string & filename, vector<float> & data)
 {
     ifstream infile(filename.c_str());
@@ -24,6 +25,7 @@ void load_csv(string & filename, vector<float> & data)
     }
     infile.close();
 }
+*/
 
 class TimeCourse : public Drawable
 {
@@ -67,7 +69,7 @@ int main(int argc, char ** argv)
     string filename(argv[1]);
     vector<float> data;
     load_csv(filename, data);
-    TimeCourse tc(data);
+    PlotSignal tc(data);
 
     float data_min = *min_element(data.begin(),data.end());
     float data_max = *max_element(data.begin(),data.end());
@@ -129,6 +131,7 @@ int main(int argc, char ** argv)
                     x0p_ = x0p;
                     x1p_ = x1p;
                     l_ = l;
+                    tc.set_visible_siglen(l);
 
                 }
                 else
