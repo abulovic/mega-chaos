@@ -35,7 +35,8 @@ public:
         for (int i = 0; i < data.size(); i++)
         {
             Vector2f p = Vector2f((float)i, data.at(i));
-            polyline[i] = p;
+            polyline[i].position = p;
+            polyline[i].color = Color(253, 151, 31);
         }
     }
 private:
@@ -187,7 +188,7 @@ int main(int argc, char ** argv)
                 zoomRect.setSize(Vector2f(0, 0));
             }
         }
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(39, 49, 34));
         //window.draw(line, 2, sf::Lines);
 
         window.setView(upper_view);
